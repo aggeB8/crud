@@ -2,25 +2,44 @@ import Users from "../models/Users.js"
 
 export default {
     login: async (req, res) => {
-        const found = await Users.findOne(req.body).exec()
+        try {
+            const found = await Users.findOne(req.body).exec()
 
-        if (found) {
-            req.session.user = found
-            res.json("Logged in")
-        } else {
-            res.json("Invalid credentials").send()
+            if (found) {
+                req.session.user = found
+                res.json("Logged in")
+            } else {
+                res.status(401).json("Invalid credentials")
+            }
+        } catch {
+            res.status(400).json("Bad input")
         }
     },
 
+    logout: (req, res) => {
+        req.session.destroy()
+        res.json("Logged out")
+    },
+
     create: async (req, res) => {
-        const created = await Users.create(req.body)
-        req.session.user = created
-        created ? res.json(created) : res.send("Invalid data")
+        try {
+            const found = await Users.find({ username: req.body.username })
+
+            if (found.length !== 0) {
+                res.status(409).json("Username already exists")
+            } else {
+                const created = await Users.create(req.body)
+                req.session.user = created
+                created ? res.send() : res.status(400).json("Invalid data")
+            }
+        } catch {
+            res.status(400).json("Invalid data")
+        }
     },
 
     delete: async (req, res) => {
         const deleted = await Users.findOneAndDelete({ _id: req.body.id })
-        deleted ? res.json(deleted) : res.json("Failed to delete")
+        deleted ? res.send() : res.status(400).json("Failed to delete")
     },
 
     edit: async (req, res) => {
@@ -28,7 +47,7 @@ export default {
             { _id: req.body.id },
             { username: req.body.username }
         )
-        updated ? res.json(updated) : res.json("Failed to update")
+        updated ? res.send() : res.status(400).json("Failed to update")
     },
 
     changePrivileges: async (req, res) => {
@@ -39,6 +58,6 @@ export default {
             { admin: !found.admin }
         )
 
-        changedPrivileges ? res.json(changedPrivileges) : res.json("Failed to change privileges")
+        changedPrivileges ? res.send() : res.status(400).json("Failed to change privileges")
     }
 }

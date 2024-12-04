@@ -29,10 +29,13 @@
                         password: password.value
                     })
                 })
-                const data = await res.json()
 
-                console.log(data)
-                window.location.href = "/dash"
+                if (res.ok) {
+                    window.location.href = "/dash"
+                } else {
+                    const data = await res.json()
+                    console.log(data)
+                }
             }
         </script>
     </body>

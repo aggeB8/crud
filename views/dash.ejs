@@ -6,12 +6,13 @@
         <title>Document</title>
     </head>
     <body>
-        <p>Logged in as
+        <p>Inloggad som
             <% if(data.session.admin) { %>
                 admin 
             <% } %>
             <%= JSON.stringify(data.session.username) %></p>
-        <button onclick="getQuote()">Get quote</button>
+        <button onclick="getQuote()">Hämta citat</button>
+        <button onclick="logout()">Logga ut</button>
         <p id="quote"></p>
 
         <% if (data.session.admin) { %>
@@ -21,25 +22,29 @@
                 <input class="user-name" disabled value="<%= user.username %>"></input>
                 <p>Admin:</p>
                 <code><%= user.admin %></code>
-                <button onclick="deleteUser('<%= user._id %>')">Delete</button>
-                <button class="user-edit" onclick="editUser('<%= user._id %>')">Edit username</button>
+                <button class="user-edit" onclick="editUser('<%= user._id %>')">Ändra användarnamn</button>
                 
-                <button onclick="changePrivileges('<%= user._id %>')">
-                    <% if(user.admin) {%>
-                        Revoke admin
-                    <% } else { %>
-                        Make admin
-                    <% } %>
-                </button>
+                <% if(data.session._id != user._id) {%>
+
+                    <button onclick="changePrivileges('<%= user._id %>')">
+                        <% if(user.admin) {%>
+                            Ta bort admin
+                        <% } else { %>
+                            Gör till admin
+                        <% } %>
+                    </button>
+                    <button onclick="deleteUser('<%= user._id %>')">Radera</button>
+
+                <% } %>
+
             </li>
             <% }) %>
         </ul>
 
         <script>
             const deleteUser = async (id) => {
-                try {
-                    const res = await fetch(`http://localhost:3000/users/delete`, {
-                        method: "PUT",
+                    const res = await fetch(`http://localhost:3000/users/admin/delete`, {
+                        method: "DELETE",
                         headers: {
                             "Content-Type": "application/json"
                         },
@@ -48,12 +53,16 @@
                         })
                     })
 
-                    location.reload()
-                } catch (e) {}
+                    if (res.ok) {
+                        location.reload()
+                    } else {
+                        const data = await res.json()
+                        console.log(data)
+                    }
             }
 
             const changePrivileges = async (id) => {
-                const res = await fetch(`http://localhost:3000/users/change-privileges`, {
+                const res = await fetch(`http://localhost:3000/users/admin/change-privileges`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json"
@@ -63,7 +72,12 @@
                     })
                 })
 
-                location.reload()
+                if (res.ok) {
+                    location.reload()
+                } else {
+                    const data = await res.json()
+                    console.log(data)
+                }
             }
 
             const editUser = async (id) => {
@@ -72,23 +86,26 @@
                 const usernameInput = user.querySelector(".user-name")
                 const editBtn = user.querySelector(".user-edit")
 
-                editBtn.textContent = 'Save'
+                editBtn.textContent = 'Spara'
 
                 editBtn.onclick = async () => {
-                    try {
-                        const res = await fetch(`http://localhost:3000/users/edit`, {
-                            method: "PUT",
-                            headers: {
-                                "Content-Type": "application/json"
-                            },
-                            body: JSON.stringify({
-                                id: id,
-                                username: usernameInput.value
-                            })
+                    const res = await fetch(`http://localhost:3000/users/admin/edit`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            id: id,
+                            username: usernameInput.value
                         })
+                    })
 
+                    if (res.ok) {
                         location.reload()
-                    } catch (e) {}
+                    } else {
+                        const data = await res.json()
+                        console.log(data)
+                    }
                 }
 
                 usernameInput.disabled = false
@@ -108,7 +125,27 @@
                 })
                 const data = await res.json()
 
-                quote.innerHTML = JSON.stringify(data)
+                if (res.ok) {
+                    quote.innerHTML = JSON.stringify(data)
+                } else {
+                    console.log(data)
+                }
+            }
+
+            const logout = async () => {
+                const res = await fetch(`http://localhost:3000/users/logout`, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+
+                if (res.ok) {
+                    window.location.href = "/"
+                } else {
+                    const data = await res.json()
+                    console.log(data)
+                }
             }
         </script>
     </body>

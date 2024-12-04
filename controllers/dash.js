@@ -19,10 +19,10 @@ export default {
                         "X-Api-Key": process.env.API_KEY
                     }
                 })
-            ).data
+            ).data[0]
             res.json(quote)
         } catch {
-            res.status(500).send("Couldn't get quote")
+            res.status(500).json("Couldn't get quote")
         }
     }
 }
