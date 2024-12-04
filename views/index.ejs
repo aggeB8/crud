@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <input id="username" placeholder="Namn" />
+        <input id="password" placeholder="Lösenord" />
+        <button onclick="sendForm('/login')" id="login">Logga in</button>
+        <button onclick="sendForm('/register')" id="register">Skapa användare</button>
+
+        <script>
+            const username = document.getElementById("username")
+            const password = document.getElementById("password")
+            const login = document.getElementById("login")
+            const register = document.getElementById("register")
+
+            const sendForm = async (endpoint) => {
+                const res = await fetch(`http://localhost:3000/users${endpoint}`, {
+                    method: "POST",
+                    redirect: "follow",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        username: username.value,
+                        password: password.value
+                    })
+                })
+                const data = await res.json()
+
+                console.log(data)
+                window.location.href = "/dash"
+            }
+        </script>
+    </body>
+</html>

@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Document</title>
+    </head>
+    <body>
+        <p>Logged in as
+            <% if(data.session.admin) { %>
+                admin 
+            <% } %>
+            <%= JSON.stringify(data.session.username) %></p>
+        <button onclick="getQuote()">Get quote</button>
+        <p id="quote"></p>
+
+        <% if (data.session.admin) { %>
+        <ul>
+            <% data.users.forEach(user => { %>
+            <li id="<%= user._id %>">
+                <input class="user-name" disabled value="<%= user.username %>"></input>
+                <p>Admin:</p>
+                <code><%= user.admin %></code>
+                <button onclick="deleteUser('<%= user._id %>')">Delete</button>
+                <button class="user-edit" onclick="editUser('<%= user._id %>')">Edit username</button>
+                
+                <button onclick="changePrivileges('<%= user._id %>')">
+                    <% if(user.admin) {%>
+                        Revoke admin
+                    <% } else { %>
+                        Make admin
+                    <% } %>
+                </button>
+            </li>
+            <% }) %>
+        </ul>
+
+        <script>
+            const deleteUser = async (id) => {
+                try {
+                    const res = await fetch(`http://localhost:3000/users/delete`, {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({
+                            id: id
+                        })
+                    })
+
+                    location.reload()
+                } catch (e) {}
+            }
+
+            const changePrivileges = async (id) => {
+                const res = await fetch(`http://localhost:3000/users/change-privileges`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({
+                        id: id
+                    })
+                })
+
+                location.reload()
+            }
+
+            const editUser = async (id) => {
+                user = document.getElementById(id)
+                
+                const usernameInput = user.querySelector(".user-name")
+                const editBtn = user.querySelector(".user-edit")
+
+                editBtn.textContent = 'Save'
+
+                editBtn.onclick = async () => {
+                    try {
+                        const res = await fetch(`http://localhost:3000/users/edit`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                id: id,
+                                username: usernameInput.value
+                            })
+                        })
+
+                        location.reload()
+                    } catch (e) {}
+                }
+
+                usernameInput.disabled = false
+            }
+        </script>
+        <% } %>
+
+        <script>
+            const quote = document.getElementById("quote")
+
+            const getQuote = async () => {
+                const res = await fetch(`http://localhost:3000/dash/quote`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                })
+                const data = await res.json()
+
+                quote.innerHTML = JSON.stringify(data)
+            }
+        </script>
+    </body>
+</html>
