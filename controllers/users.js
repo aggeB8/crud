@@ -7,12 +7,12 @@ export default {
 
             if (found) {
                 req.session.user = found
-                res.json("Logged in")
+                res.send()
             } else {
-                res.status(401).json("Invalid credentials")
+                res.status(401).json("Ogiltiga uppgifter")
             }
         } catch {
-            res.status(400).json("Bad input")
+            res.status(400).json("Dålig input")
         }
     },
 
@@ -26,20 +26,20 @@ export default {
             const found = await Users.find({ username: req.body.username })
 
             if (found.length !== 0) {
-                res.status(409).json("Username already exists")
+                res.status(409).json("Användarnamn finns redan")
             } else {
                 const created = await Users.create(req.body)
                 req.session.user = created
-                created ? res.send() : res.status(400).json("Invalid data")
+                created ? res.send() : res.status(400).json("Ogiltig data")
             }
         } catch {
-            res.status(400).json("Invalid data")
+            res.status(400).json("Ogiltig data")
         }
     },
 
     delete: async (req, res) => {
         const deleted = await Users.findOneAndDelete({ _id: req.body.id })
-        deleted ? res.send() : res.status(400).json("Failed to delete")
+        deleted ? res.send() : res.status(400).json("Misslyckades att ta bort")
     },
 
     edit: async (req, res) => {
@@ -47,7 +47,7 @@ export default {
             { _id: req.body.id },
             { username: req.body.username }
         )
-        updated ? res.send() : res.status(400).json("Failed to update")
+        updated ? res.send() : res.status(400).json("Misslyckades att uppdatera")
     },
 
     changePrivileges: async (req, res) => {
@@ -58,6 +58,6 @@ export default {
             { admin: !found.admin }
         )
 
-        changedPrivileges ? res.send() : res.status(400).json("Failed to change privileges")
+        changedPrivileges ? res.send() : res.status(400).json("Misslyckades att byta privlegier")
     }
 }

@@ -3,44 +3,52 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link href="/style.css" rel="stylesheet" type="text/css" />
         <title>Document</title>
     </head>
     <body>
+
         <p>Inloggad som
-            <% if(data.session.admin) { %>
-                admin 
-            <% } %>
-            <%= JSON.stringify(data.session.username) %></p>
-        <button onclick="getQuote()">Hämta citat</button>
+        <% if(data.session.admin) { %>
+            admin 
+        <% } %>
+        <%= JSON.stringify(data.session.username) %></p>
         <button onclick="logout()">Logga ut</button>
-        <p id="quote"></p>
 
-        <% if (data.session.admin) { %>
-        <ul>
-            <% data.users.forEach(user => { %>
-            <li id="<%= user._id %>">
-                <input class="user-name" disabled value="<%= user.username %>"></input>
-                <p>Admin:</p>
-                <code><%= user.admin %></code>
-                <button class="user-edit" onclick="editUser('<%= user._id %>')">Ändra användarnamn</button>
-                
-                <% if(data.session._id != user._id) {%>
+        <div id="dash-wrapper">
+            <div id="quote-wrapper">
+                <p id="quote"></p>
+                <p id="author"></p>
+            </div>
+            <button onclick="getQuote()">Hämta citat</button>
+        </div>
 
-                    <button onclick="changePrivileges('<%= user._id %>')">
-                        <% if(user.admin) {%>
-                            Ta bort admin
-                        <% } else { %>
-                            Gör till admin
-                        <% } %>
-                    </button>
-                    <button onclick="deleteUser('<%= user._id %>')">Radera</button>
+            <% if (data.session.admin) { %>
+            <ul id="users-wrapper">
+                <% data.users.forEach(user => { %>
+                <li id="<%= user._id %>">
+                    <input class="user-name" disabled value="<%= user.username %>"></input>
+                    <p>Admin:</p>
+                    <code><%= user.admin %></code>
+                    <button class="user-edit" onclick="editUser('<%= user._id %>')">Ändra användarnamn</button>
+                    
+                    <% if(data.session._id != user._id) {%>
 
-                <% } %>
+                        <button onclick="changePrivileges('<%= user._id %>')">
+                            <% if(user.admin) {%>
+                                Ta bort admin
+                            <% } else { %>
+                                Gör till admin
+                            <% } %>
+                        </button>
+                        <button onclick="deleteUser('<%= user._id %>')">Radera</button>
 
-            </li>
-            <% }) %>
-        </ul>
+                    <% } %>
 
+                </li>
+                <% }) %>
+            </ul>
+        
         <script>
             const deleteUser = async (id) => {
                     const res = await fetch(`http://localhost:3000/users/admin/delete`, {
@@ -115,6 +123,7 @@
 
         <script>
             const quote = document.getElementById("quote")
+            const author = document.getElementById("author")
 
             const getQuote = async () => {
                 const res = await fetch(`http://localhost:3000/dash/quote`, {
@@ -126,7 +135,8 @@
                 const data = await res.json()
 
                 if (res.ok) {
-                    quote.innerHTML = JSON.stringify(data)
+                    quote.innerHTML = JSON.stringify(data.quote)
+                    author.innerHTML = JSON.stringify(data.author)
                 } else {
                     console.log(data)
                 }

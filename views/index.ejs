@@ -3,13 +3,16 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link href="/style.css" rel="stylesheet" type="text/css" />
         <title>Document</title>
     </head>
     <body>
-        <input id="username" placeholder="Namn" />
-        <input id="password" placeholder="Lösenord" />
-        <button onclick="sendForm('/login')" id="login">Logga in</button>
-        <button onclick="sendForm('/register')" id="register">Skapa användare</button>
+        <div id="login-wrapper">
+            <input id="username" placeholder="Namn" />
+            <input id="password" placeholder="Lösenord" />
+            <button onclick="sendForm('/login')" id="login">Logga in</button>
+            <button onclick="sendForm('/register')" id="register">Skapa användare</button>
+        </div>
 
         <script>
             const username = document.getElementById("username")

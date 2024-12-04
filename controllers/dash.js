@@ -22,7 +22,7 @@ export default {
             ).data[0]
             res.json(quote)
         } catch {
-            res.status(500).json("Couldn't get quote")
+            res.status(500).json("Kunde inte hämta citat")
         }
     }
 }
