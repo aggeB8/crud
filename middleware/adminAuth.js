@@ -8,7 +8,7 @@ const dashAdmin = async (req, res, next) => {
             return
         }
     }
-    res.status(401).json("Not admin")
+    res.status(401).json("Ej admin")
 }
 
 export default dashAdmin
